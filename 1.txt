@@ -1,0 +1,39 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Loading Dataset
+data=pd.read_csv("diabetes.csv")
+
+data.info()
+
+data.head()
+
+data.tail()
+
+data.iloc[110:120]
+
+data.corr()
+
+data=data[['Glucose','Age','BMI','Outcome']]
+
+data.head()
+
+X=data.drop('Outcome',axis=1)
+Y=data['Outcome']
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42)
+
+from sklearn.svm import SVC  #support vector classifier
+classifier = SVC(kernel='linear', random_state = 42)
+classifier.fit(x_train,y_train)
+
+y_pred = classifier.predict(x_test)
+
+from sklearn.metrics import confusion_matrix,accuracy_score
+print(accuracy_score(y_test,y_pred)*100)
+
+cm=confusion_matrix(y_test,y_pred)
+print(cm)
+
