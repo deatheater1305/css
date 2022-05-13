@@ -1,0 +1,53 @@
+# importing libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow import keras
+
+digit_mnist = keras.datasets.mnist
+(x_train_full, y_train_full), (x_test, y_test) = digit_mnist.load_data()
+
+x_train_full.shape
+
+plt.imshow(x_train_full[1])
+
+# feature scaling
+x_train_n = x_train_full / 255.    # 0 - 255 grey scale : 0= black , 255:white
+x_test_n = x_test / 255.
+
+# Train_Valid_Test Split
+x_valid, x_train = x_train_n[:6000],x_train_n[6000:]
+y_valid, y_train = y_train_full[:6000],y_train_full[6000:]
+x_test = x_test_n
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+# Model Building
+model = keras.models.Sequential()
+model.add(keras.layers.Flatten(input_shape=[28,28]))
+model.add(keras.layers.Dense(200,activation='relu'))
+model.add(keras.layers.Dense(100,activation='relu'))
+model.add(keras.layers.Dense(10,activation='softmax'))
+
+model.compile(loss='sparse_categorical_crossentropy',
+             metrics=['accuracy'],
+             optimizer = 'sgd')
+
+# model training
+model_r = model.fit(x_train,y_train,epochs=10,
+                         validation_data=(x_valid,y_valid))
+
+# predicting first five Digits
+x_new=x_test[:5]
+
+y_proba = model.predict(x_new)
+y_proba.round(2)
+
+predict_x = model.predict(x_new) 
+classes_x=np.argmax(predict_x,axis=1)
+
+# Output
+classes_x
+
