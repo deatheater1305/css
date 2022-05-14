@@ -1,0 +1,52 @@
+!pip install apyori
+
+import pandas as pd
+import numpy as np
+from apyori import apriori
+
+store_data = pd.read_csv("GroceryStoreDataSet.csv",encoding='latin-1')
+
+store_data.head()
+
+store_data.info()
+
+#Renaming the column to PRODUCTS
+
+store_data.rename(columns = {'MILK,BREAD,BISCUIT':'PRODUCTS'}, inplace = True)
+
+# Creating a list of items in every transaction.
+#The list will work as a training set from where we can generate the list of Association Rules.
+
+list_items = list(store_data["PRODUCTS"].apply(lambda x:x.split(',')))
+list_items
+
+from mlxtend.preprocessing import TransactionEncoder
+
+encode = TransactionEncoder()
+encode_data = encode.fit(list_items).transform(list_items)
+store_data = pd.DataFrame(encode_data,columns = encode.columns_)
+store_data.head()
+
+
+#Applying apriori algorithm
+
+association_rules = apriori(list_items, min_support=0.0045, min_confidence=0.2, min_lift=3, min_length=2)
+association_list = list(association_rules)
+
+
+#Generating the association rule between the items
+
+for i in range(0, len(association_list)):
+    print(association_list[i][0])
+
+#Display Rule, Support, Confidence and lift ratio for every above association rule
+
+for item in association_list:
+    pair = item[0]
+    items = [x for x in pair]
+    print("Rule: " + items[0] + " --> " + items[1])
+    print("Support: " + str(item[1]))
+    print("Confidence: " + str(item[2][0][2]))
+    print("Lift: " + str(item[2][0][3]))
+    print("-----------------------------------------------------")
+
